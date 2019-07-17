@@ -1,0 +1,49 @@
+function Circle(opt_options){
+  var defaults = {
+    color: 'white',
+    defaultX: 0,
+    defaultY: 0
+  };
+
+  var options = $.extend(defaults,opt_options);
+  this.defaultX = options.defaultX;
+  this.defaultY = options.defaultY;
+
+  this.shape = new createjs.Shape();
+  this.shape.graphics.beginFill(options.color).drawCircle(0, 0, 30);
+  this.shape.x = this.defaultX;
+  this.shape.y = this.defaultY;
+
+}
+Circle.prototype.update = function(mouseX,mouseY){
+  var angle = Math.atan2(this.shape.y - mouseY, this.shape.x -  mouseX);
+
+  // ボールから逃げる
+  var para = 0.975;
+  var d = Math.sqrt(Math.pow((this.shape.x - mouseX),2) + Math.pow((this.shape.y - mouseY),2));
+  this.shape.x += Math.cos(angle)*35*Math.pow(para,d);
+  this.shape.y += Math.sin(angle)*35*Math.pow(para,d);
+
+  // 元の位置に戻ろうとする
+  var distant = Math.sqrt(Math.pow((this.shape.x - this.defaultX),2) + Math.pow((this.shape.y - this.defaultY),2));
+  this.shape.x -= (this.shape.x - this.defaultX)*distant*0.01;
+  this.shape.y -= (this.shape.y - this.defaultY)*distant*0.01;
+
+
+};
+
+function init() {
+  var stage = new createjs.Stage("studyCanvas");
+  var circle0 = new Circle({
+    color: 'Orange',
+    defaultX: 100,
+    defaultY: 100
+  });
+
+  stage.addChild(circle0.shape);
+  createjs.Ticker.addEventListener("tick", handleTick);
+  function handleTick(event) {
+    circle0.update(stage.mouseX,stage.mouseY);
+    stage.update();
+  }
+}
